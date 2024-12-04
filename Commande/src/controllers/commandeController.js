@@ -1,17 +1,31 @@
+const { publishMessage } = require('../utils/rabbitmq');
 const commandes = [];
 
-exports.createCommande = (req, res) => {
+exports.createCommande = async (req, res) => {
   const { clientId, items } = req.body;
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   const newCommande = {
     id: commandes.length + 1,
     clientId,
     items,
     status: 'En attente',
     total,
-    createdAt: new Date()
+    createdAt: new Date(),
   };
+
   commandes.push(newCommande);
+
+  try {
+    await publishMessage('commande.events', {
+        eventType: 'CommandeCréée',
+        commande: newCommande,
+    });
+    console.log('Événement CommandeCréée publié sur RabbitMQ');
+  } catch (error) {
+    console.error('Erreur lors de la publication de l\'événement :', error);
+  }
+
   res.status(201).json(newCommande);
 };
 
