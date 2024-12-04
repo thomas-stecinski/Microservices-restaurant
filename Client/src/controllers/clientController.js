@@ -15,7 +15,7 @@ exports.createClient = (req, res) => {
     id: clients.length + 1,
     name,
     email,
-    password: hashedPassword
+    password: hashedPassword,
   };
 
   clients.push(newClient);
@@ -30,7 +30,6 @@ exports.login = (req, res) => {
     return res.status(401).json({ error: 'Identifiants incorrects' });
   }
 
-  // Génération du token JWT
   const token = generateToken({ id: client.id, email: client.email });
   res.json({ token });
 };
