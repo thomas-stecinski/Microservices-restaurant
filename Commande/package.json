@@ -1,0 +1,17 @@
+{
+  "name": "commande",
+  "version": "1.0.0",
+  "description": "Méthode\t    Endpoint\tDescription\r POST\t    /commande\tCréer une commande\r GET\t    /commande/:id\tConsulter une commande par ID\r GET\t    /commandes\t    Lister toutes les commandes\r PUT\t    /commande/:id\tMettre à jour une commande\r DELETE\t/commande/:id\tAnnuler une commande",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "body-parser": "^1.20.3",
+    "express": "^4.21.1"
+  }
+}
