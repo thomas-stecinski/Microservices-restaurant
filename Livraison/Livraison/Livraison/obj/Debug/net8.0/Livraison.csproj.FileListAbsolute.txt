@@ -1,0 +1,8 @@
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/obj/Debug/net8.0/Livraison.csproj.AssemblyReference.cache
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/obj/Debug/net8.0/Livraison.GeneratedMSBuildEditorConfig.editorconfig
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/obj/Debug/net8.0/Livraison.AssemblyInfoInputs.cache
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/obj/Debug/net8.0/Livraison.AssemblyInfo.cs
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/obj/Debug/net8.0/Livraison.csproj.CoreCompileInputs.cache
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/obj/Debug/net8.0/Livraison.MvcApplicationPartsAssemblyInfo.cs
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/obj/Debug/net8.0/Livraison.MvcApplicationPartsAssemblyInfo.cache
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/obj/Debug/net8.0/Livraison.sourcelink.json

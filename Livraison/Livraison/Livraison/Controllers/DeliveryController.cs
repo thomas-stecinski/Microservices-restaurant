@@ -11,10 +11,12 @@ namespace Livraison.Controllers
     public class DeliveryController : ControllerBase
     {
         private readonly IDeliveryService _deliveryService;
+        private readonly RabbitMQService _rabbitMQService;
 
-        public DeliveryController(IDeliveryService deliveryService)
+        public DeliveryController(IDeliveryService deliveryService, RabbitMQService rabbitMQService)
         {
             _deliveryService = deliveryService;
+            _rabbitMQService = rabbitMQService;
         }
 
         [HttpGet]
@@ -44,6 +46,11 @@ namespace Livraison.Controllers
         public async Task<IActionResult> UpdateDelivery(string id, Delivery delivery)
         {
             await _deliveryService.UpdateDeliveryAsync(id, delivery);
+
+            // Publier l'événement `delivery_status_updated` dans RabbitMQ
+            var deliveryEvent = new { Id = id, Status = delivery.Status };
+            _rabbitMQService.PublishEvent("delivery_status_updated", deliveryEvent);
+
             return StatusCode(201, delivery);
         }
 

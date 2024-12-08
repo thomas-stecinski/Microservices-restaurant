@@ -17,13 +17,10 @@ exports.createCommande = async (req, res) => {
   commandes.push(newCommande);
 
   try {
-    await publishMessage('commande.events', {
-        eventType: 'CommandeCréée',
-        commande: newCommande,
-    });
-    console.log('Événement CommandeCréée publié sur RabbitMQ');
+    await publishMessage('commande_created', newCommande);
+    console.log('Événement commande_created publié:', newCommande);
   } catch (error) {
-    console.error('Erreur lors de la publication de l\'événement :', error);
+    console.error('Erreur de publication RabbitMQ:', error);
   }
 
   res.status(201).json(newCommande);

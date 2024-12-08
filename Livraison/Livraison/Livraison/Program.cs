@@ -1,6 +1,5 @@
 using System;
 using Livraison;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Livraison.Services;
 using Livraison.Repository;
@@ -8,23 +7,23 @@ using Livraison.Repository;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure DbContext with SQL Server
 builder.Services.AddDbContext<LivraisonDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-
 );
+
+// Register repositories and services
 builder.Services.AddScoped<IDeliveryRepository, DeliveryRepository>();
 builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 
-builder.Services.AddControllers();
+// Register RabbitMQService as a singleton
+builder.Services.AddSingleton<RabbitMQService>();
 
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -34,9 +33,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
+
+
+var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>();
+
+rabbitMQService.ConsumeEvent("commande_created", (message) =>
+{
+    Console.WriteLine($"[RabbitMQ] Received commande_created: {message}");
+
+});
 
 app.Run();

@@ -34,6 +34,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 const router = express.Router();
+const { connectRabbitMQ } = require('../utils/rabbitmq');
 
 const saltRounds = 10;
 
@@ -58,20 +59,29 @@ const saltRounds = 10;
 router.post('/register', async (req, res) => {
     const { nom, prenom, password, role } = req.body;
 
+    // Validation des champs requis
     if (!nom || !prenom || !password || !role) {
-        return res.status(400).send({ message: 'Tous les champs sont requis.' });
+        return res.status(400).json({ error: 'Tous les champs sont obligatoires.' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    try {
+        // Hachage du mot de passe
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    db.query(
-        'INSERT INTO users (nom, prenom, password, role) VALUES (?, ?, ?, ?)',
-        [nom, prenom, hashedPassword, role],
-        (err) => {
-            if (err) return res.status(500).send(err);
-            res.status(201).send({ message: 'Utilisateur enregistré.' });
-        }
-    );
+        // Enregistrer l'utilisateur dans la base de données
+        const user = { nom, prenom, password: hashedPassword, role };
+        await db('users').insert(user);
+
+        // Publier l'événement client_registered
+        const clientEvent = { nom, prenom, role };
+        await publishMessage('client_registered', clientEvent);
+        console.log('Événement client_registered publié:', clientEvent);
+
+        res.status(201).json({ message: 'Utilisateur enregistré avec succès.', user: { nom, prenom, role } });
+    } catch (error) {
+        console.error('Erreur lors de l\'enregistrement de l\'utilisateur:', error);
+        res.status(500).json({ error: 'Erreur interne du serveur.' });
+    }
 });
 
 

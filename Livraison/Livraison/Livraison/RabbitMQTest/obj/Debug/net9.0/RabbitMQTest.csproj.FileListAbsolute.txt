@@ -1,0 +1,6 @@
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/RabbitMQTest/obj/Debug/net9.0/RabbitMQTest.csproj.AssemblyReference.cache
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/RabbitMQTest/obj/Debug/net9.0/RabbitMQTest.GeneratedMSBuildEditorConfig.editorconfig
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/RabbitMQTest/obj/Debug/net9.0/RabbitMQTest.AssemblyInfoInputs.cache
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/RabbitMQTest/obj/Debug/net9.0/RabbitMQTest.AssemblyInfo.cs
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/RabbitMQTest/obj/Debug/net9.0/RabbitMQTest.csproj.CoreCompileInputs.cache
+/Users/luxvegba/Documents/WebstormProjects/Microservices-restaurant/Livraison/Livraison/Livraison/RabbitMQTest/obj/Debug/net9.0/RabbitMQTest.sourcelink.json

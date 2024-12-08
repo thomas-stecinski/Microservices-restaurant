@@ -1,5 +1,3 @@
-src/utils/rabbitmq.js
-
 const amqp = require('amqplib');
 
 let channel;
@@ -25,6 +23,20 @@ const publishMessage = async (queue, message) => {
   console.log(`Message publié sur la queue "${queue}":`, message);
 };
 
-module.exports = { connectRabbitMQ, publishMessage };
+const consumeMessage = async (queue, callback) => {
+  if (!channel) {
+    console.error('RabbitMQ non connecté');
+    return;
+  }
+  await channel.assertQueue(queue, { durable: true });
+  channel.consume(queue, (message) => {
+    if (message !== null) {
+      const content = JSON.parse(message.content.toString());
+      console.log(`Message reçu depuis la queue "${queue}":`, content);
+      callback(content);
+      channel.ack(message);
+    }
+  });
+};
 
-
+module.exports = { connectRabbitMQ, publishMessage, consumeMessage };
