@@ -36,13 +36,13 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-
+// Consommer les événements RabbitMQ au démarrage
 var rabbitMQService = app.Services.GetRequiredService<RabbitMQService>();
 
-rabbitMQService.ConsumeEvent("commande_created", (message) =>
+// Consommer le message de type "commande_created" (la queue que tu veux écouter)
+await rabbitMQService.ConsumeEventAsync("commande_created", (message) =>
 {
     Console.WriteLine($"[RabbitMQ] Received commande_created: {message}");
-
 });
 
 app.Run();
