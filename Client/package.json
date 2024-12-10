@@ -13,6 +13,7 @@
     "amqplib": "^0.10.5",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
+    "client": "file:",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
