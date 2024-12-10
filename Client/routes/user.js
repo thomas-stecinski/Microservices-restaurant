@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 const router = express.Router();
+const { connectRabbitMQ } = require('../utils/rabbitmq');
 
 // Middleware d'authentification
 const authenticateToken = (req, res, next) => {
