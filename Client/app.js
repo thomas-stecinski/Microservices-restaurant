@@ -24,7 +24,7 @@ app.use('/user', userRoutes);
 // Initialisation du serveur avec RabbitMQ
 const startServer = async () => {
     try {
-        // Connexion à RabbitMQ
+        // Connexion à RabbitMQ avec logique de reconnexion
         console.log('Connexion à RabbitMQ en cours...');
         await connectRabbitMQ();
         console.log('RabbitMQ connecté avec succès');
@@ -35,10 +35,9 @@ const startServer = async () => {
             console.log(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
         });
     } catch (error) {
-        console.error('Erreur lors de l\'initialisation de l\'application :', error);
+        console.error('Erreur lors de l\'initialisation de l\'application :', error.message);
         process.exit(1); // Arrêter l'application en cas d'erreur critique
     }
 };
 
-// Lancer l'application
 startServer();

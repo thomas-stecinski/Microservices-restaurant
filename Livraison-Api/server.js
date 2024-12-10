@@ -7,7 +7,7 @@ const swaggerUi = require("swagger-ui-express");
 const { connectRabbitMQ, consumeMessage, publishMessage } = require("./utils/rabbitmq");
 const routes = require("./routes/router");
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 4001;
 
 app.use(cors({
   origin: "*",
