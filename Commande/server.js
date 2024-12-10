@@ -1,23 +1,37 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const router = require('./src/routes/router');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const { connectRabbitMQ } = require('./src/utils/rabbitmq');
+const commandeRoutes = require('./src/routes/commandeRoutes');
+
+// Charger les variables d'environnement
+dotenv.config();
 
 const app = express();
-const port = 3001;
+app.use(express.json());
 
-app.use(bodyParser.json());
-app.use(router);
+// Connexion à MongoDB
+mongoose
+    .connect(process.env.DATABASE_URL)
+    .then(() => console.log("MongoDB connecté"))
+    .catch((err) => console.error("Erreur de connexion à MongoDB :", err));
 
-// Connecter RabbitMQ
-connectRabbitMQ().then(() => {
-  console.log('RabbitMQ connecté');
-});
+connectRabbitMQ()
+    .then(() => {
+      console.log('RabbitMQ connecté');
 
-app.get('/health', (req, res) => {
-  res.status(200).send('Commande Service is running!');
-});
+      consumeMessage('delivery_status_updated', (event) => {
+        console.log('Événement delivery_status_updated reçu:', event);
+        console.log(`Statut de la commande ${event.id} mis à jour: ${event.status}`);
+      });
+    })
+    .catch((error) => {
+      console.error('Erreur de connexion à RabbitMQ :', error);
+    });
 
-app.listen(port, () => {
-  console.log(`Commande Service is running on http://localhost:${port}`);
-});
+// Routes
+app.use('/commandes', commandeRoutes);
+
+// Démarrer le serveur
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Commande Service is running on http://localhost:${PORT}`));

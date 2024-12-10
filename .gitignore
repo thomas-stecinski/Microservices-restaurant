@@ -1,2 +1,4 @@
 Client/node_modules/
-Client/.env
+Livraison-Api/node_modules
+Commande/node_modules
+node_modules/
