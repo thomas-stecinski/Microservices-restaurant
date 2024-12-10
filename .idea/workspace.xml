@@ -6,6 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="dcbceeb8-89c8-437b-b085-79e573b24f94" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/routes/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/Client/routes/auth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Commande/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Commande/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Commande/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Commande/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Commande/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/Commande/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Commande/src/controllers/commandeController.js" beforeDir="false" afterPath="$PROJECT_DIR$/Commande/src/controllers/commandeController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Commande/src/routes/commandeRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/Commande/src/routes/commandeRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Livraison-Api/.env" beforeDir="false" afterPath="$PROJECT_DIR$/Livraison-Api/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Livraison-Api/controllers/deliveryController.js" beforeDir="false" afterPath="$PROJECT_DIR$/Livraison-Api/controllers/deliveryController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Livraison-Api/models/Delivery.js" beforeDir="false" afterPath="$PROJECT_DIR$/Livraison-Api/models/Delivery.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +50,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "broker",
-    "last_opened_file_path": "/Users/luxvegba/Documents/Microservices-restaurant",
+    "last_opened_file_path": "/Users/luxvegba/Documents/Microservices-restaurant/Commande",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -57,6 +66,9 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Commande" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/Commande/src" />
       <recent name="$PROJECT_DIR$" />

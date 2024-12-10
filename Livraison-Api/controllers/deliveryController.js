@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { publishMessage } = require("../utils/rabbitmq");
 const mongoose = require('mongoose');
 
+
 exports.createDelivery = async (req, res) => {
   try {
     const { idComande, idClient, idLivreur, adresse, ville, status, prix, dateLivraison } = req.body;
@@ -12,20 +13,28 @@ exports.createDelivery = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
-    // Conversion des ID en ObjectId
-    const createdBy = mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : null;
-    const commandeId = mongoose.Types.ObjectId.isValid(idComande) ? new mongoose.Types.ObjectId(idComande) : null;
-    const clientId = mongoose.Types.ObjectId.isValid(idClient) ? new mongoose.Types.ObjectId(idClient) : null;
-
-    if (!createdBy || !commandeId || !clientId) {
-      return res.status(400).json({ message: "ID(s) invalide(s)." });
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Token invalide : userId invalide." });
     }
+
+    // Génération automatique des ObjectId si non fournis
+    const commandeId = idComande && mongoose.Types.ObjectId.isValid(idComande)
+        ? new mongoose.Types.ObjectId(idComande)
+        : new mongoose.Types.ObjectId(); // Génère automatiquement un ObjectId
+    const clientId = idClient && mongoose.Types.ObjectId.isValid(idClient)
+        ? new mongoose.Types.ObjectId(idClient)
+        : new mongoose.Types.ObjectId(); // Génère automatiquement un ObjectId
+    const livreurId = idLivreur && mongoose.Types.ObjectId.isValid(idLivreur)
+        ? new mongoose.Types.ObjectId(idLivreur)
+        : new mongoose.Types.ObjectId(); // Génère automatiq
+    const createdBy = new mongoose.Types.ObjectId(userId);
 
     // Création de la livraison
     const newDelivery = await DELIVERY.create({
+      id: new mongoose.Types.ObjectId(),
       idComande: commandeId,
       idClient: clientId,
-      idLivreur,
+      idLivreur: livreurId,
       adresse,
       ville,
       status: status || "En attente",
