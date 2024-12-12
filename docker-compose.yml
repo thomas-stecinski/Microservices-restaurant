@@ -75,10 +75,12 @@ services:
       MYSQL_PASSWORD: admin
     volumes:
       - client_db_data:/var/lib/mysql
+      - ./Client/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uadmin", "-padmin"]
       interval: 10s
       retries: 5
+
 
 volumes:
   client_db_data:

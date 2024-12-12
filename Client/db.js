@@ -13,7 +13,7 @@ const connectDatabase = async (retries = 5, delay = 3000) => {
                 database: process.env.DB_NAME || 'restaurant_client',
             });
             console.log('Connecté à MySQL');
-            return connection; // Retourner la connexion si elle réussit
+            return connection;
         } catch (error) {
             console.error(`Erreur de connexion à MySQL : ${error.message}`);
             if (i < retries - 1) {
@@ -27,4 +27,11 @@ const connectDatabase = async (retries = 5, delay = 3000) => {
     }
 };
 
-module.exports = { connectDatabase };
+const query = async (sql, params) => {
+    if (!connection) {
+        throw new Error('Pas de connexion MySQL établie.');
+    }
+    return connection.execute(sql, params);
+};
+
+module.exports = { connectDatabase, query };

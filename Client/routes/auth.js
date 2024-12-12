@@ -85,27 +85,22 @@ router.post('/register', async (req, res) => {
 
     try {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        // SQL query to insert the user into the database
+
+        // Connexion à la base de données
+        const connection = await db.connectDatabase();
+
+        // Insertion de l'utilisateur dans la table
         const sql = 'INSERT INTO users (nom, prenom, password, role) VALUES (?, ?, ?, ?)';
-        const values = [nom, prenom, hashedPassword, role];
+        const [result] = await connection.execute(sql, [nom, prenom, hashedPassword, role]);
 
-        db.query(sql, values, (err, results) => {
-            if (err) {
-                console.error('Erreur lors de l\'enregistrement de l\'utilisateur:', err);
-                return res.status(500).json({ error: 'Erreur interne du serveur.' });
-            }
+        // Publier l'événement via RabbitMQ
+        const clientEvent = { nom, prenom, role };
+        await publishMessage('client_registered', clientEvent);
 
-            // Publier l'événement client_registered
-            const clientEvent = { nom, prenom, role };
-            publishMessage('client_registered', clientEvent)
-                .then(() => {
-                    console.log('Événement client_registered publié:', clientEvent);
-                    res.status(201).json({ message: 'Utilisateur enregistré avec succès.', user: { nom, prenom, role } });
-                })
-                .catch((publishError) => {
-                    console.error('Erreur lors de la publication de l\'événement:', publishError);
-                    res.status(500).json({ error: 'Erreur interne lors de la publication de l\'événement.' });
-                });
+        console.log('Utilisateur enregistré et événement publié avec succès.');
+        res.status(201).json({
+            message: 'Utilisateur enregistré avec succès.',
+            user: { id: result.insertId, nom, prenom, role },
         });
     } catch (error) {
         console.error('Erreur lors de l\'enregistrement de l\'utilisateur:', error);
@@ -154,40 +149,46 @@ router.post('/register', async (req, res) => {
  *       500:
  *         description: Erreur interne.
  */
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
     const { nom, password } = req.body;
 
     if (!nom || !password) {
+        console.log("Requête invalide : nom ou password manquant.");
         return res.status(400).send({ message: 'Nom et mot de passe requis.' });
     }
 
-    db.query('SELECT * FROM users WHERE nom = ?', [nom], async (err, results) => {
-        if (err) return res.status(500).send(err);
+    console.log(`Tentative de connexion pour l'utilisateur : ${nom}`);
+
+    try {
+        const [results] = await db.query('SELECT * FROM users WHERE nom = ?', [nom]);
 
         if (results.length === 0) {
+            console.log("Utilisateur non trouvé.");
             return res.status(404).send({ message: 'Utilisateur non trouvé.' });
         }
 
         const user = results[0];
-        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        console.log("Utilisateur trouvé :", user);
 
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
+            console.log("Mot de passe incorrect.");
             return res.status(401).send({ message: 'Mot de passe incorrect.' });
         }
 
-
         const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        const clientEvent = { clientId: user.id, role: user.role, token };
-        await publishMessage('client_authenticated', clientEvent)
+        console.log("Token JWT généré :", token);
 
-    .then(() => {
-                res.send({ message: 'Connexion réussie.', token });
-            })
-            .catch((err) => {
-                console.error('Erreur lors de la publication RabbitMQ:', err);
-                res.status(500).json({ message: 'Erreur interne.' });
-            });
-    });
+        const clientEvent = { clientId: user.id, role: user.role, token };
+        await publishMessage('client_authenticated', clientEvent);
+
+        console.log("Événement publié avec succès via RabbitMQ.");
+        res.send({ message: 'Connexion réussie.', token });
+    } catch (err) {
+        console.error('Erreur lors de la connexion:', err);
+        res.status(500).json({ message: 'Erreur interne.' });
+    }
 });
+
 
 module.exports = router;
