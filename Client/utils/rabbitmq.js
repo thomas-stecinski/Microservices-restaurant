@@ -9,7 +9,7 @@ const connectRabbitMQ = async (retries = 5, delay = 3000) => {
             const connection = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://rabbitmq:5672');
             channel = await connection.createChannel();
             console.log('RabbitMQ connecté');
-            return; // Quitter la boucle si la connexion réussit
+            return;
         } catch (error) {
             console.error(`Erreur de connexion à RabbitMQ : ${error.message}`);
             if (i < retries - 1) {
@@ -17,7 +17,7 @@ const connectRabbitMQ = async (retries = 5, delay = 3000) => {
                 await new Promise((resolve) => setTimeout(resolve, delay));
             } else {
                 console.error('Impossible de se connecter à RabbitMQ après plusieurs tentatives');
-                throw error; // Propager l'erreur si toutes les tentatives échouent
+                throw error;
             }
         }
     }
@@ -26,7 +26,7 @@ const connectRabbitMQ = async (retries = 5, delay = 3000) => {
 const publishMessage = async (queue, message) => {
     if (!channel) {
         console.error('RabbitMQ non connecté');
-        return;
+        throw new Error('RabbitMQ non connecté.');
     }
     await channel.assertQueue(queue, { durable: true });
     channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));

@@ -147,7 +147,7 @@ router.get('/', authenticateToken, commandeController.listCommandes);
  *             properties:
  *               status:
  *                 type: string
- *                 enum: [En attente, Livrée, Annulée]
+ *                 enum: [Livrée, En attente,  Annulée]
  *     responses:
  *       200:
  *         description: Statut mis à jour avec succès.

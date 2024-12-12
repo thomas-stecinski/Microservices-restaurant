@@ -9,50 +9,53 @@ const express = require("express");
 const {
   createDelivery,
   updateDelivery,
-  detailsDelivery,
+  getDeliveryDetails,
   deleteDelivery,
 } = require("../controllers/deliveryController");
-const { authenticateToken} = require("../middlewares/authMiddleware");
+const { authenticateToken } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 /**
  * @swagger
  * /api/delivery/createDelivery:
- *     post:
- *       tags:
- *         - Delivery
- *       summary: Create a new delivery
- *       security:
- *         - bearerAuth: []
- *       requestBody:
- *         required: true
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 idComande:
- *                   type: string
- *                   example: "63d72c1f9f1b0c24dc6e4a70"
- *                 idClient:
- *                   type: string
- *                   example: "63d72c1f9f1b0c24dc6e4a71"
- *                 adresse:
- *                   type: string
- *                   example: "123 Rue Exemple"
- *                 ville:
- *                   type: string
- *                   example: "Paris"
- *                 prix:
- *                   type: number
- *                   example: 20.5
- *                 dateLivraison:
- *                   type: string
- *                   format: date
- *                   example: "2024-01-01"
- *       responses:
- *         201:
- *           description: Delivery created successfully
+ *   post:
+ *     tags:
+ *       - Delivery
+ *     summary: Créer une nouvelle livraison
+ *     description: Si le prix n'est pas fourni, il sera récupéré depuis le service Commandes.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               idCommande:
+ *                 type: string
+ *                 example: "63d72c1f9f1b0c24dc6e4a70"
+ *               adresse:
+ *                 type: string
+ *                 example: "123 Rue Exemple"
+ *               ville:
+ *                 type: string
+ *                 example: "Paris"
+ *               prix:
+ *                 type: number
+ *                 description: Optionnel si récupéré depuis le service Commandes.
+ *                 example: 20.5
+ *               dateLivraison:
+ *                 type: string
+ *                 format: date
+ *                 example: "2024-01-01"
+ *     responses:
+ *       201:
+ *         description: Livraison créée avec succès
+ *       400:
+ *         description: Requête incorrecte
+ *       500:
+ *         description: Erreur interne
  */
 router.post("/createDelivery", authenticateToken, createDelivery);
 
@@ -62,7 +65,8 @@ router.post("/createDelivery", authenticateToken, createDelivery);
  *   put:
  *     tags:
  *       - Delivery
- *     summary: Update an existing delivery
+ *     summary: Mettre à jour une livraison
+ *     description: Mise à jour du statut d'une livraison existante.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -71,9 +75,26 @@ router.post("/createDelivery", authenticateToken, createDelivery);
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: ["En attente", "En cours", "Livrée", "Annulée"]
+ *                 example: "Livrée"
  *     responses:
  *       200:
- *         description: Delivery updated successfully
+ *         description: Livraison mise à jour avec succès
+ *       400:
+ *         description: Requête incorrecte
+ *       404:
+ *         description: Livraison non trouvée
+ *       500:
+ *         description: Erreur interne
  */
 router.put("/updateDelivery/:id", authenticateToken, updateDelivery);
 
@@ -83,7 +104,7 @@ router.put("/updateDelivery/:id", authenticateToken, updateDelivery);
  *   get:
  *     tags:
  *       - Delivery
- *     summary: Get delivery details by ID
+ *     summary: Obtenir les détails d'une livraison par ID
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -94,9 +115,13 @@ router.put("/updateDelivery/:id", authenticateToken, updateDelivery);
  *           type: string
  *     responses:
  *       200:
- *         description: Delivery details
+ *         description: Détails de la livraison
+ *       404:
+ *         description: Livraison non trouvée
+ *       500:
+ *         description: Erreur interne
  */
-router.get("/detailsDelivery/:id", authenticateToken, detailsDelivery);
+router.get("/detailsDelivery/:id", authenticateToken, getDeliveryDetails);
 
 /**
  * @swagger
@@ -104,7 +129,7 @@ router.get("/detailsDelivery/:id", authenticateToken, detailsDelivery);
  *   delete:
  *     tags:
  *       - Delivery
- *     summary: Delete a delivery by ID
+ *     summary: Supprimer une livraison par ID
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -115,8 +140,12 @@ router.get("/detailsDelivery/:id", authenticateToken, detailsDelivery);
  *           type: string
  *     responses:
  *       200:
- *         description: Delivery deleted successfully
+ *         description: Livraison supprimée avec succès
+ *       404:
+ *         description: Livraison non trouvée
+ *       500:
+ *         description: Erreur interne
  */
-//router.delete("/deleteDelivery/:id", verifyToken, deleteDelivery);
+router.delete("/deleteDelivery/:id", authenticateToken, deleteDelivery);
 
 module.exports = router;

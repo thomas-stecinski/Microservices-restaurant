@@ -1,125 +1,119 @@
-const DELIVERY = require("../models/Delivery");
-const jwt = require("jsonwebtoken");
-const { publishMessage } = require("../utils/rabbitmq");
+const Delivery = require('../models/Delivery');
+const { publishMessage } = require('../utils/rabbitmq');
 const mongoose = require('mongoose');
 
-
+// Créer une nouvelle livraison
 exports.createDelivery = async (req, res) => {
   try {
-    const { idComande, idClient, idLivreur, adresse, ville, status, prix, dateLivraison } = req.body;
+    const { idCommande, adresse, ville, prix, dateLivraison } = req.body;
 
-    // Récupération et vérification du token JWT
-    const token = req.header("Authorization")?.replace("Bearer ", "");
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "Token invalide : userId invalide." });
+    if (!idCommande || !adresse || !ville || !prix) {
+      console.error('Données de livraison incomplètes.');
+      return res.status(400).json({ message: 'Tous les champs obligatoires doivent être remplis.' });
     }
 
-    // Génération automatique des ObjectId si non fournis
-    const commandeId = idComande && mongoose.Types.ObjectId.isValid(idComande)
-        ? new mongoose.Types.ObjectId(idComande)
-        : new mongoose.Types.ObjectId(); // Génère automatiquement un ObjectId
-    const clientId = idClient && mongoose.Types.ObjectId.isValid(idClient)
-        ? new mongoose.Types.ObjectId(idClient)
-        : new mongoose.Types.ObjectId(); // Génère automatiquement un ObjectId
-    const livreurId = idLivreur && mongoose.Types.ObjectId.isValid(idLivreur)
-        ? new mongoose.Types.ObjectId(idLivreur)
-        : new mongoose.Types.ObjectId(); // Génère automatiq
-    const createdBy = new mongoose.Types.ObjectId(userId);
+    const clientId = req.user.id; // ID utilisateur depuis le token JWT
 
     // Création de la livraison
-    const newDelivery = await DELIVERY.create({
-      id: new mongoose.Types.ObjectId(),
-      idComande: commandeId,
-      idClient: clientId,
-      idLivreur: livreurId,
+    const newDelivery = await Delivery.create({
+      idCommande: mongoose.Types.ObjectId(idCommande),
+      idClient: mongoose.Types.ObjectId(clientId),
       adresse,
       ville,
-      status: status || "En attente",
+      status: 'En attente', // Statut par défaut
       prix,
-      dateLivraison,
-      createdBy,
+      dateLivraison: dateLivraison || new Date(), // Valeur par défaut
     });
 
-    // Publication dans RabbitMQ
-    await publishMessage("deliveryQueue", { type: "DELIVERY_CREATED", payload: newDelivery });
+    // Publier l'événement dans RabbitMQ
+    await publishMessage('delivery_created', {
+      id: newDelivery._id,
+      idCommande: newDelivery.idCommande,
+      idClient: newDelivery.idClient,
+      adresse: newDelivery.adresse,
+      ville: newDelivery.ville,
+      status: newDelivery.status,
+      prix: newDelivery.prix,
+      dateLivraison: newDelivery.dateLivraison,
+    });
 
-    res.status(201).json({ message: "Livraison créée avec succès", delivery: newDelivery });
+    console.log('Livraison créée avec succès.');
+    res.status(201).json({ message: 'Livraison créée avec succès.', delivery: newDelivery });
   } catch (err) {
-    console.error("Erreur lors de la création de la livraison :", err.message);
-    res.status(500).json({ message: "Erreur interne du serveur.", error: err.message });
+    console.error('Erreur lors de la création de la livraison :', err.message);
+    res.status(500).json({ message: 'Erreur interne du serveur.', error: err.message });
   }
 };
 
+// Mettre à jour une livraison
 exports.updateDelivery = async (req, res) => {
   try {
-    const deliveryId = req.params.id;
-    const deliveryData = req.body;
+    const { id } = req.params;
+    const { status } = req.body;
 
-    // Decode JWT
-    const token = req.header("Authorization")?.replace("Bearer ", "");
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
+    if (!status) {
+      console.error('Statut non fourni.');
+      return res.status(400).json({ message: 'Le statut est obligatoire.' });
+    }
 
-    // Update Delivery
-    const updatedDelivery = await DELIVERY.findOneAndUpdate(
-        { _id: deliveryId, createdBy: userId },
-        deliveryData,
-        { new: true, runValidators: true }
+    const updatedDelivery = await Delivery.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true, runValidators: true }
     );
 
     if (!updatedDelivery) {
-      return res.status(404).json({ message: "Delivery not found" });
+      console.error('Livraison non trouvée.');
+      return res.status(404).json({ message: 'Livraison non trouvée.' });
     }
 
-    // Publish event to RabbitMQ
-    await publishMessage("deliveryQueue", { type: "DELIVERY_UPDATED", payload: updatedDelivery });
+    // Publier l'événement dans RabbitMQ
+    await publishMessage('delivery_updated', updatedDelivery);
 
-    res.status(200).json({
-      message: "Delivery updated successfully",
-      delivery: updatedDelivery,
-    });
+    console.log('Livraison mise à jour avec succès.');
+    res.status(200).json({ message: 'Livraison mise à jour avec succès.', delivery: updatedDelivery });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error('Erreur lors de la mise à jour de la livraison :', err.message);
+    res.status(500).json({ message: 'Erreur interne du serveur.', error: err.message });
   }
 };
 
-exports.detailsDelivery = async (req, res) => {
+// Récupérer une livraison
+exports.getDeliveryDetails = async (req, res) => {
   try {
-    const deliveryId = req.params.id;
+    const { id } = req.params;
 
-    const deliveryDetails = await DELIVERY.findOne({ _id: deliveryId });
-    if (!deliveryDetails) {
-      return res.status(404).json({ message: "Delivery not found" });
+    const delivery = await Delivery.findById(id);
+    if (!delivery) {
+      console.error('Livraison non trouvée.');
+      return res.status(404).json({ message: 'Livraison non trouvée.' });
     }
 
-    res.status(200).json({
-      message: "Delivery details fetched successfully",
-      delivery: deliveryDetails,
-    });
+    res.status(200).json({ message: 'Livraison récupérée avec succès.', delivery });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error('Erreur lors de la récupération de la livraison :', err.message);
+    res.status(500).json({ message: 'Erreur interne du serveur.', error: err.message });
   }
 };
 
+// Supprimer une livraison
 exports.deleteDelivery = async (req, res) => {
   try {
-    const deliveryId = req.params.id;
+    const { id } = req.params;
 
-    const delivery = await DELIVERY.findById(deliveryId);
-    if (!delivery) {
-      return res.status(404).json({ message: "Delivery not found." });
+    const deletedDelivery = await Delivery.findByIdAndDelete(id);
+    if (!deletedDelivery) {
+      console.error('Livraison non trouvée.');
+      return res.status(404).json({ message: 'Livraison non trouvée.' });
     }
 
-    await DELIVERY.findByIdAndDelete(deliveryId);
+    // Publier l'événement dans RabbitMQ
+    await publishMessage('delivery_deleted', { id });
 
-    // Publish event to RabbitMQ
-    await publishMessage("deliveryQueue", { type: "DELIVERY_DELETED", payload: { id: deliveryId } });
-
-    res.status(200).json({ message: "Delivery deleted successfully." });
+    console.log('Livraison supprimée avec succès.');
+    res.status(200).json({ message: 'Livraison supprimée avec succès.' });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error('Erreur lors de la suppression de la livraison :', err.message);
+    res.status(500).json({ message: 'Erreur interne du serveur.', error: err.message });
   }
 };
