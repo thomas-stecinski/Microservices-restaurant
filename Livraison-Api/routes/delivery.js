@@ -17,7 +17,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/delivery/createDelivery:
+ * /api/delivery/create:
  *   post:
  *     tags:
  *       - Delivery
@@ -61,7 +61,7 @@ router.post("/createDelivery", authenticateToken, createDelivery);
 
 /**
  * @swagger
- * /api/delivery/updateDelivery/{id}:
+ * /api/delivery/update/{id}:
  *   put:
  *     tags:
  *       - Delivery
@@ -100,7 +100,7 @@ router.put("/updateDelivery/:id", authenticateToken, updateDelivery);
 
 /**
  * @swagger
- * /api/delivery/detailsDelivery/{id}:
+ * /api/delivery/details/{id}:
  *   get:
  *     tags:
  *       - Delivery
@@ -125,7 +125,7 @@ router.get("/detailsDelivery/:id", authenticateToken, getDeliveryDetails);
 
 /**
  * @swagger
- * /api/delivery/deleteDelivery/{id}:
+ * /api/delivery/delete/{id}:
  *   delete:
  *     tags:
  *       - Delivery
