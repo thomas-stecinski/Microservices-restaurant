@@ -14,6 +14,7 @@ const commandeSchema = new mongoose.Schema({
         default: 'En attente',
     },
     total: { type: Number, required: true },
+    clientId: { type: String, required: true }, 
     createdAt: { type: Date, default: Date.now },
 });
 
